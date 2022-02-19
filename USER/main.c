@@ -1,4 +1,4 @@
-#include "sys.h"
+ï»¿#include "sys.h"
 #include "delay.h"
 #include "usart.h"
 #include "sram.h"
@@ -14,113 +14,121 @@
 #include "gui.h"
 #include "GUI.h"
 #include "GUIDemo.h"
-/************************************************
- ALIENTEK Ì½Ë÷ÕßSTM32F407¿ª·¢°å FreeRTOSÊµÑé21-1
- FreeRTOS+EMWINÒÆÖ²-HAL¿â°æ±¾
- ¼¼ÊõÖ§³Ö£ºwww.openedv.com
- ÌÔ±¦µêÆÌ£ºhttp://eboard.taobao0.com 
- ¹Ø×¢Î¢ĞÅ¹«ÖÚÆ½Ì¨Î¢ĞÅºÅ£º"ÕıµãÔ­×Ó"£¬Ãâ·Ñ»ñÈ¡STM32×ÊÁÏ¡£
- ¹ãÖİÊĞĞÇÒíµç×Ó¿Æ¼¼ÓĞÏŞ¹«Ë¾  
- ×÷Õß£ºÕıµãÔ­×Ó @ALIENTEK
-************************************************/
+#include "ff.h"
+#include "exfuns.h"
 
-//ÈÎÎñÓÅÏÈ¼¶
+//ä»»åŠ¡ä¼˜å…ˆçº§
 #define START_TASK_PRIO			1
-//ÈÎÎñ¶ÑÕ»´óĞ¡	
+//ä»»åŠ¡å †æ ˆå¤§å°	
 #define START_STK_SIZE 			256  
-//ÈÎÎñ¾ä±ú
+//ä»»åŠ¡å¥æŸ„
 TaskHandle_t StartTask_Handler;
-//ÈÎÎñº¯Êı
+//ä»»åŠ¡å‡½æ•°
 void start_task(void *pvParameters);
 
-//TOUCHÈÎÎñ
-//ÉèÖÃÈÎÎñÓÅÏÈ¼¶
+//TOUCHä»»åŠ¡
+//è®¾ç½®ä»»åŠ¡ä¼˜å…ˆçº§
 #define TOUCH_TASK_PRIO			2
-//ÈÎÎñ¶ÑÕ»´óĞ¡
+//ä»»åŠ¡å †æ ˆå¤§å°
 #define TOUCH_STK_SIZE			128
-//ÈÎÎñ¾ä±ú
+//ä»»åŠ¡å¥æŸ„
 TaskHandle_t TouchTask_Handler;
-//touchÈÎÎñ
+//touchä»»åŠ¡
 void touch_task(void *pvParameters);
 
-//LED0ÈÎÎñ
-//ÉèÖÃÈÎÎñÓÅÏÈ¼¶
+//LED0ä»»åŠ¡
+//è®¾ç½®ä»»åŠ¡ä¼˜å…ˆçº§
 #define LED0_TASK_PRIO 			3
-//ÈÎÎñ¶ÑÕ»´óĞ¡
+//ä»»åŠ¡å †æ ˆå¤§å°
 #define LED0_STK_SIZE			128
-//ÈÎÎñ¾ä±ú
+//ä»»åŠ¡å¥æŸ„
 TaskHandle_t Led0Task_Handler;
-//led0ÈÎÎñ
+//led0ä»»åŠ¡
 void led0_task(void *pvParameters);
 
-//EMWINDEMOÈÎÎñ
-//ÉèÖÃÈÎÎñÓÅÏÈ¼¶
+//EMWINDEMOä»»åŠ¡
+//è®¾ç½®ä»»åŠ¡ä¼˜å…ˆçº§
 #define EMWINDEMO_TASK_PRIO		4
-//ÈÎÎñ¶ÑÕ»´óĞ¡
+//ä»»åŠ¡å †æ ˆå¤§å°
 #define EMWINDEMO_STK_SIZE		512
-//ÈÎÎñ¾ä±ú
+//ä»»åŠ¡å¥æŸ„
 TaskHandle_t EmwindemoTask_Handler;
-//emwindemo_taskÈÎÎñ
+//emwindemo_taskä»»åŠ¡
 void emwindemo_task(void *pvParameters);
+
+//FATFS   fs;			/* FatFsæ–‡ä»¶ç³»ç»Ÿå¯¹è±¡ */
+//FIL     file;		/* file objects */
+//UINT    bw;     /* File R/W count */
+FRESULT result; 
+//FILINFO fno;
+//DIR dir;
+
 int main(void)
 {
 
-	delay_init(168);       	//ÑÓÊ±³õÊ¼»¯
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4); 	//ÖĞ¶Ï·Ö×éÅäÖÃ
-	uart_init(115200);    	//´®¿Ú²¨ÌØÂÊÉèÖÃ
-	TFTLCD_Init();			//³õÊ¼»¯LCD
-	TP_Init();				//³õÊ¼»¯´¥ÃşÆÁ
-	LED_Init();   			//LED³õÊ¼»¯
-	DS18B20_Init();			//ÎÂ¶È´«¸ĞÆ÷³õÊ¼»¯
-	FSMC_SRAM_Init(); 		//SRAM³õÊ¼»¯	
-	mem_init(SRAMIN); 		//ÄÚ²¿RAM³õÊ¼»¯
-	mem_init(SRAMEX); 		//Íâ²¿RAM³õÊ¼»¯
-	mem_init(SRAMCCM);		//CCM³õÊ¼»¯
+	delay_init(168);       	//å»¶æ—¶åˆå§‹åŒ–
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4); 	//ä¸­æ–­åˆ†ç»„é…ç½®
+	uart_init(115200);    	//ä¸²å£æ³¢ç‰¹ç‡è®¾ç½®
+	TFTLCD_Init();			//åˆå§‹åŒ–LCD
+	TP_Init();				//åˆå§‹åŒ–è§¦æ‘¸å±
+	LED_Init();   			//LEDåˆå§‹åŒ–
+	DS18B20_Init();			//æ¸©åº¦ä¼ æ„Ÿå™¨åˆå§‹åŒ–
+	FSMC_SRAM_Init(); 		//SRAMåˆå§‹åŒ–	
+	mem_init(SRAMIN); 		//å†…éƒ¨RAMåˆå§‹åŒ–
+	mem_init(SRAMEX); 		//å¤–éƒ¨RAMåˆå§‹åŒ–
+	mem_init(SRAMCCM);		//CCMåˆå§‹åŒ–
 	
-	//´´½¨¿ªÊ¼ÈÎÎñ
-    xTaskCreate((TaskFunction_t )start_task,            //ÈÎÎñº¯Êı
-                (const char*    )"start_task",          //ÈÎÎñÃû³Æ
-                (uint16_t       )START_STK_SIZE,        //ÈÎÎñ¶ÑÕ»´óĞ¡
-                (void*          )NULL,                  //´«µİ¸øÈÎÎñº¯ÊıµÄ²ÎÊı
-                (UBaseType_t    )START_TASK_PRIO,       //ÈÎÎñÓÅÏÈ¼¶
-                (TaskHandle_t*  )&StartTask_Handler);   //ÈÎÎñ¾ä±ú                
-    vTaskStartScheduler();          //¿ªÆôÈÎÎñµ÷¶È
+	exfuns_init();			//ä¸ºfatfsæ–‡ä»¶ç³»ç»Ÿåˆ†é…å†…å­˜
+	result = f_mount(fs[0],"0:",1);	//æŒ‚è½½SDå¡
+
+//	while(!result)
+//	{
+//		
+//	}
+	//åˆ›å»ºå¼€å§‹ä»»åŠ¡
+    xTaskCreate((TaskFunction_t )start_task,            //ä»»åŠ¡å‡½æ•°
+                (const char*    )"start_task",          //ä»»åŠ¡åç§°
+                (uint16_t       )START_STK_SIZE,        //ä»»åŠ¡å †æ ˆå¤§å°
+                (void*          )NULL,                  //ä¼ é€’ç»™ä»»åŠ¡å‡½æ•°çš„å‚æ•°
+                (UBaseType_t    )START_TASK_PRIO,       //ä»»åŠ¡ä¼˜å…ˆçº§
+                (TaskHandle_t*  )&StartTask_Handler);   //ä»»åŠ¡å¥æŸ„                
+    vTaskStartScheduler();          //å¼€å¯ä»»åŠ¡è°ƒåº¦
 }
 
-//¿ªÊ¼ÈÎÎñÈÎÎñº¯Êı
+//å¼€å§‹ä»»åŠ¡ä»»åŠ¡å‡½æ•°
 void start_task(void *pvParameters)
 {
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_CRC,ENABLE);//¿ªÆôCRCÊ±ÖÓ
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_CRC,ENABLE);//å¼€å¯CRCæ—¶é’Ÿ
 	WM_SetCreateFlags(WM_CF_MEMDEV);
-	GUI_Init();  					//STemWin³õÊ¼»¯
-	WM_MULTIBUF_Enable(1);  		//¿ªÆôSTemWin¶à»º³å,RGBÆÁ¿ÉÄÜ»áÓÃµ½
-    taskENTER_CRITICAL();           //½øÈëÁÙ½çÇø
-	//´´½¨´¥ÃşÈÎÎñ
+	GUI_Init();  					//STemWinåˆå§‹åŒ–
+	WM_MULTIBUF_Enable(1);  		//å¼€å¯STemWinå¤šç¼“å†²,RGBå±å¯èƒ½ä¼šç”¨åˆ°
+    taskENTER_CRITICAL();           //è¿›å…¥ä¸´ç•ŒåŒº
+	//åˆ›å»ºè§¦æ‘¸ä»»åŠ¡
     xTaskCreate((TaskFunction_t )touch_task,             
                 (const char*    )"touch_task",           
                 (uint16_t       )TOUCH_STK_SIZE,        
                 (void*          )NULL,                  
                 (UBaseType_t    )TOUCH_TASK_PRIO,        
                 (TaskHandle_t*  )&TouchTask_Handler);   	
-    //´´½¨LED0ÈÎÎñ
+    //åˆ›å»ºLED0ä»»åŠ¡
     xTaskCreate((TaskFunction_t )led0_task,             
                 (const char*    )"led0_task",           
                 (uint16_t       )LED0_STK_SIZE,        
                 (void*          )NULL,                  
                 (UBaseType_t    )LED0_TASK_PRIO,        
                 (TaskHandle_t*  )&Led0Task_Handler);  
-    //´´½¨EMWIN DemoÈÎÎñ
+    //åˆ›å»ºEMWIN Demoä»»åŠ¡
     xTaskCreate((TaskFunction_t )emwindemo_task,             
                 (const char*    )"emwindemo_task",           
                 (uint16_t       )EMWINDEMO_STK_SIZE,        
                 (void*          )NULL,                  
                 (UBaseType_t    )EMWINDEMO_TASK_PRIO,        
                 (TaskHandle_t*  )&EmwindemoTask_Handler);   				
-    vTaskDelete(StartTask_Handler); //É¾³ı¿ªÊ¼ÈÎÎñ
-    taskEXIT_CRITICAL();            //ÍË³öÁÙ½çÇø
+    vTaskDelete(StartTask_Handler); //åˆ é™¤å¼€å§‹ä»»åŠ¡
+    taskEXIT_CRITICAL();            //é€€å‡ºä¸´ç•ŒåŒº
 }
 
-//EMWINDEMOÈÎÎñ
+//EMWINDEMOä»»åŠ¡
 void emwindemo_task(void *pvParameters)
 {
 	WM_MULTIBUF_Enable(1);
@@ -130,22 +138,22 @@ void emwindemo_task(void *pvParameters)
 	}
 }
 
-//´¥ÃşÈÎÎñµÄÈÎÎñº¯Êı
+//è§¦æ‘¸ä»»åŠ¡çš„ä»»åŠ¡å‡½æ•°
 void touch_task(void *pvParameters)
 {
 	while(1)
 	{
 		GUI_TOUCH_Exec();	
-		vTaskDelay(5);		//ÑÓÊ±5ms
+		vTaskDelay(5);		//å»¶æ—¶5ms
 	}
 }
 
-//LED0ÈÎÎñ
+//LED0ä»»åŠ¡
 void led0_task(void *p_arg)
 {
 	while(1)
 	{
 		LED0 = !LED0;
-		vTaskDelay(500);		//ÑÓÊ±500ms
+		vTaskDelay(500);		//å»¶æ—¶500ms
 	}
 }

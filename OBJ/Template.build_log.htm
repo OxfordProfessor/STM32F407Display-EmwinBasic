@@ -22,27 +22,33 @@ Dialog DLL:      TCM.DLL V1.27.0.0
  
 <h2>Project:</h2>
 D:\Project\重点协作项目\基于FreeRTOS与Emwin图形库的界面显示\USER\FreeRTOS.uvprojx
-Project File Date:  02/12/2022
+Project File Date:  02/19/2022
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 4 (build 422)', folder: 'D:\MDK5\ARM\ARMCC\Bin'
 Build target 'FreeRTOS'
 compiling gui.c...
-..\HARDWARE\GUI\gui.c(24): warning:  #1295-D: Deprecated declaration DS18B20_Get_Temp - give arg types
+..\HARDWARE\GUI\gui.c(45): warning:  #1295-D: Deprecated declaration DS18B20_Get_Temp - give arg types
   extern short DS18B20_Get_Temp();
-..\HARDWARE\GUI\gui.c(289): warning:  #1-D: last line of file ends without a newline
+..\HARDWARE\GUI\gui.c(140): warning:  #223-D: function "MULTIEDIT_ShowCursor" declared implicitly
+  		MULTIEDIT_ShowCursor(hItem, 0);
+..\HARDWARE\GUI\gui.c(482): warning:  #1-D: last line of file ends without a newline
   }
-..\HARDWARE\GUI\gui.c(135): warning:  #177-D: function "Disp_DecNum"  was declared but never referenced
-  static void Disp_DecNum(void)
-..\HARDWARE\GUI\gui.c(183): warning:  #177-D: function "Disp_FloatingNum"  was declared but never referenced
-  static void Disp_FloatingNum(void)
-..\HARDWARE\GUI\gui.c(233): warning:  #177-D: function "Disp_BinHexNum"  was declared but never referenced
-  static void Disp_BinHexNum(void)
-..\HARDWARE\GUI\gui.c: 5 warnings, 0 errors
+..\HARDWARE\GUI\gui.c(464): warning:  #177-D: variable "hJPEG"  was declared but never referenced
+  	GUI_MEMDEV_Handle hJPEG;
+..\HARDWARE\GUI\gui.c(242): warning:  #177-D: function "ShowJPEGEx"  was declared but never referenced
+  static void ShowJPEGEx(const char *sFilename)
+..\HARDWARE\GUI\gui.c(268): warning:  #177-D: function "ShowJPEG"  was declared but never referenced
+  static void ShowJPEG(const char *sFilename)
+..\HARDWARE\GUI\gui.c(310): warning:  #177-D: function "LoadJPEG_UsingMEMDEV"  was declared but never referenced
+  static WM_HMEM LoadJPEG_UsingMEMDEV(const char *sFilename)
+..\HARDWARE\GUI\gui.c(371): warning:  #177-D: variable "FONT_XINSONGTI_16_ADDR"  was declared but never referenced
+  static const char FONT_XINSONGTI_16_ADDR[] = 	 "0:/Font/新宋体16_4bpp.sif";
+..\HARDWARE\GUI\gui.c: 8 warnings, 0 errors
 linking...
-Program Size: Code=121446 RO-data=26350 RW-data=860 ZI-data=1057480  
+Program Size: Code=168406 RO-data=207322 RW-data=1192 ZI-data=1064676  
 FromELF: creating hex file...
-"..\OBJ\Template.axf" - 0 Error(s), 5 Warning(s).
+"..\OBJ\Template.axf" - 0 Error(s), 8 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   .\RTE\_FreeRTOS

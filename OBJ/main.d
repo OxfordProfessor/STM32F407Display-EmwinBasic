@@ -89,3 +89,7 @@
 ..\obj\main.o: ..\EMWIN\STemWin\inc\ICONVIEW.h
 ..\obj\main.o: ..\EMWIN\STemWin\inc\LISTVIEW.h
 ..\obj\main.o: ..\EMWIN\STemWin\inc\TREEVIEW.h
+..\obj\main.o: ..\FAFTS\src\ff.h
+..\obj\main.o: ..\FAFTS\src\integer.h
+..\obj\main.o: ..\FAFTS\src\ffconf.h
+..\obj\main.o: ..\FAFTS\exfuns\exfuns.h
